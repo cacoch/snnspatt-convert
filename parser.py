@@ -3,9 +3,10 @@
 import pyparsing as pp
 
 
-file = "v2_1C_PB1-11_e41-81_mod_noise-10.pat"
+file = "test/81-2-10.pat"
 
 f = open(file, "r")
+data = open(file, "r")
 data = f.read()
 
 ### grammar
@@ -16,15 +17,22 @@ num_pat = pp.Literal("No. of patterns :")
 num_inputs = pp.Literal("No. of input units :")                                                          
 num_outputs = pp.Literal("No. of output units :")                                                          
 INT = pp.Word(pp.nums).set_parse_action(lambda s, l, t: [int(t[0])])
+FLOAT = pp.Combine(pp.Optional("-") + pp.Optional(pp.Word(pp.nums)) + "." + pp.Word(pp.nums)
+).setParseAction(lambda s, l, t: [float(t[0])])
 
+
+COMMETS = pp.Literal('# Input pattern no. :') + INT
+COMMENT_OUT = pp.Literal('# Output pattern no. :') +  INT                                                        
 NUM_INPUTS = num_inputs.suppress() + INT("num_input")
 NUM_PAT = num_pat + INT("num_patt")  
 NUM_OUTS = num_outputs + INT("num_output")
 
 header = patt_def + generated + NUM_PAT +  \
-     NUM_INPUTS + NUM_OUTS
+     NUM_INPUTS + NUM_OUTS 
+
+body = COMMETS  + 81 * FLOAT + COMMENT_OUT +  2 * FLOAT
 ### end of grammar
-parser = header 
+parser = header + body 
 
 
 result = parser.parse_string(data)
